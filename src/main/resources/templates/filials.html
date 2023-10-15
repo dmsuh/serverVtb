@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{include/header::head('филиалы')}"></head>
+<body>
+    <div th:replace="~{include/header::nav}"></div>
+
+    <p class="d-inline-flex gap-1 px-4">
+        <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+            Добавить
+        </button>
+    </p>
+    <div class="collapse" id="collapseExample">
+        <div class="card card-body">
+           <form class="row g-3" method="post" th:action="@{create_filial}" th:object="${filial}">
+               <div class="row mb-3">
+                   <label for="name" class="col-sm-2 col-form-label">Название</label>
+                   <div class="col-sm-10">
+                       <input type="text" class="form-control" id="name" th:field="*{name}" required>
+                   </div>
+               </div>
+               <div class="row mb-3">
+                   <label for="address" class="col-sm-2 col-form-label">Адрес</label>
+                   <div class="col-sm-10">
+                       <input type="text" class="form-control" id="address" th:field="*{address}" required>
+                   </div>
+               </div>
+               <div class="row mb-3">
+                   <label class="col-form-label col-sm-2 pt-0">Координаты</label>
+                   <div class="row g-3">
+                       <div class="col">
+                           <input type="number" placeholder="Широта" aria-label="Широта" class="form-control" id="latitude" th:field="*{latitude}" required >
+                       </div>
+                       <div class="col">
+                           <input type="number" placeholder="Долгота" aria-label="Долгота" class="form-control" id="longitude" th:field="*{longitude}" required >
+                       </div>
+                       <div class="col">
+                           <button type="button" class="btn btn-primary">Указать на карте</button>
+                       </div>
+                   </div>
+               </div>
+               <div class="mb-3 form-check">
+                   <input class="form-check-input" type="checkbox" id="isWorking" th:field="*{isWorking}">
+                   <label class="form-check-label" for="isWorking">открыт?</label>
+               </div>
+
+               <input type="hidden" id="schedule">
+               <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#scheduleModal">
+                   Настроить расписание
+               </button>
+
+               <fieldset class="row mb-3">
+                   <legend class="col-form-label col-sm-2 pt-0">Фильтры</legend>
+                   <div class="col-sm-10">
+                       <div class="form-check">
+                           <input class="form-check-input" type="checkbox" id="servesIndividual" th:field="*{servesIndividual}">
+                           <label class="form-check-label" for="servesIndividual">
+                               обслуживание физ.лиц
+                           </label>
+                       </div>
+                       <div class="form-check">
+                           <input class="form-check-input" type="checkbox" id="servesLegal" th:field="*{servesLegal}">
+                           <label class="form-check-label" for="servesLegal">
+                               обслуживание юр.лиц
+                           </label>
+                       </div>
+                       <div class="form-check">
+                           <input class="form-check-input" type="checkbox" id="serverPrivilege" th:field="*{serverPrivilege}">
+                           <label class="form-check-label" for="serverPrivilege">
+                               привелегия
+                           </label>
+                       </div>
+                       <div class="form-check">
+                           <input class="form-check-input" type="checkbox" id="servesPrime" th:field="*{servesPrime}">
+                           <label class="form-check-label" for="servesPrime">
+                               прайм
+                           </label>
+                       </div>
+                       <div class="form-check">
+                           <input class="form-check-input" type="checkbox" id="servesDisabled" th:field="*{servesDisabled}">
+                           <label class="form-check-label" for="servesDisabled">
+                               обслуживание маломобильных
+                           </label>
+                       </div>
+                   </div>
+               </fieldset>
+               <div class="row mb-3">
+                   <label for="windows" class="col-sm-2 col-form-label">Кол-во окон</label>
+                   <div class="col-sm-10">
+                       <input type="text" class="form-control" id="windows" th:field="*{windows}" required>
+                   </div>
+               </div>
+
+               <button type="submit" class="btn btn-primary">Создать</button>
+
+           </form>
+        </div>
+    </div>
+
+    <div class="modal" id="scheduleModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Расписание</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <script type="text/javascript" th:inline="javascript">
+                        function scheduleFormSwitch(id){
+                            let begin = $('#'+id+'_begin')
+                            let end = $('#'+id+'_end')
+                            let value = $('#'+id).is(':checked')
+                            begin.attr('value', '')
+                            end.attr('value', '')
+                            begin.attr('disabled', value)
+                            end.attr('disabled', value)
+                        }
+
+                        function Pair(a,b){
+                            this.first = a;
+                            this.second = b;
+                        }
+
+                        var x = /*[[${schedule}]]*/ null;
+                        function Serialize(){
+                            let w = /*[[${week}]]*/ null;
+                            w.forEach( i=>{
+                                x[i.first.toLowerCase()] = $('input[id='+i.first+']').is(':checked') ? null :
+                                new Pair($('input[id='+i.first+'_begin]').val(), $('input[id='+i.first+'_end]').val() )
+                            })
+                            $('#schedule').val(JSON.stringify(x))
+                        }
+
+                    </script>
+                    <form>
+                    <div th:each="d : ${week}" class="row mb-2">
+                        <label class="col form-check-label my-auto" th:for="${d.first}+'_begin'" th:text="${d.second}"></label>
+                        <div class = "col-9 row gap-2">
+
+                            <input type="time" class="col form-control" th:id="${d.first}+'_begin'">
+                            <input type="time" class="col form-control" th:id="${d.first}+'_end'">
+
+                            <div class="col form-check form-switch my-auto">
+                                <label class="form-check-label" th:for="${d.first}">Выходной</label>
+                                <input class="form-check-input" type="checkbox" role="switch" th:id="${d.first}" th:onchange="scheduleFormSwitch( this.getAttribute('id') )">
+                            </div>
+                        </div>
+                    </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                    <button type="button" class="btn btn-primary" onclick="Serialize()">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <ol class="list-group" th:each="filial : ${filials}">
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+            <div class="ms-2 me-auto">
+                <div class="fw-bold">
+                    <a th:href="@{/admin/edit_filial/${filial.id}}" th:text="${filial.name}"></a>
+                </div>
+                [[${filial.address}]]
+            </div>
+            <span th:if="${filial.isWorking}">
+                <span>Нагрузка: </span><span class="badge bg-primary rounded-pill" th:text="${filial.loadPercent()!=null}? ${filial.loadPercent()}+'%':'n/a'">14</span>
+            </span>
+            <span th:if="${!filial.isWorking}" class="badge bg-danger rounded-pill">не работат</span>
+
+        </li>
+    </ol>
+</body>
+</html>

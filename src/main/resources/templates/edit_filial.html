@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+  <head th:replace="~{include/header::head('филиалы')}"></head>
+<body>
+<form class="row g-3 m-5" method="post" th:action="@{save_filial}" th:object="${filial}">
+  <div class="row mb-3">
+    <label for="name" class="col-sm-2 col-form-label">Название</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="name" th:field="*{name}" required>
+    </div>
+  </div>
+  <div class="row mb-3">
+    <label for="address" class="col-sm-2 col-form-label">Адрес</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="address" th:field="*{address}" required>
+    </div>
+  </div>
+  <div class="row mb-3">
+    <label class="col-form-label col-sm-2 pt-0">Координаты</label>
+    <div class="row g-3">
+      <div class="col">
+        <input type="number" placeholder="Широта" aria-label="Широта" class="form-control" id="latitude" th:field="*{latitude}" required >
+      </div>
+      <div class="col">
+        <input type="number" placeholder="Долгота" aria-label="Долгота" class="form-control" id="longitude" th:field="*{longitude}" required >
+      </div>
+      <div class="col">
+        <button type="button" class="btn btn-primary">Указать на карте</button>
+      </div>
+    </div>
+  </div>
+  <div class="mb-3 form-check">
+    <input class="form-check-input" type="checkbox" id="isWorking" th:field="*{isWorking}">
+    <label class="form-check-label" for="isWorking">открыт?</label>
+  </div>
+
+  <input type="hidden" id="schedule">
+  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#scheduleModal">
+    Настроить расписание
+  </button>
+
+  <fieldset class="row mb-3">
+    <legend class="col-form-label col-sm-2 pt-0">Фильтры</legend>
+    <div class="col-sm-10">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="servesIndividual" th:field="*{servesIndividual}">
+        <label class="form-check-label" for="servesIndividual">
+          обслуживание физ.лиц
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="servesLegal" th:field="*{servesLegal}">
+        <label class="form-check-label" for="servesLegal">
+          обслуживание юр.лиц
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="serverPrivilege" th:field="*{serverPrivilege}">
+        <label class="form-check-label" for="serverPrivilege">
+          привелегия
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="servesPrime" th:field="*{servesPrime}">
+        <label class="form-check-label" for="servesPrime">
+          прайм
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="servesDisabled" th:field="*{servesDisabled}">
+        <label class="form-check-label" for="servesDisabled">
+          обслуживание маломобильных
+        </label>
+      </div>
+    </div>
+  </fieldset>
+  <div class="row mb-3">
+    <label for="windows" class="col-sm-2 col-form-label">Кол-во окон</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="windows" th:field="*{windows}" required>
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Сохранить</button>
+
+</form>
+
+</body>
+</html>
